@@ -59,22 +59,22 @@ for t = 1:m
   h = sigmoid(z3);
 
   d3 = h - yy(t,:)';
-  d2 = (Theta2'*d3)(2:end).*sigmoidGradient(z2);
-                                % below...
+  foo = Theta2'*d3;
+  d2 = (foo(2:end)).*sigmoidGradient(z2);
 
-  Theta2_grad += d3*v2';
-  Theta1_grad += d2*v1';
+  Theta2_grad = Theta2_grad + d3* (v2');
+  Theta1_grad = Theta1_grad + d2* (v1');
 end
-Theta2_grad *= (1/m);
-Theta1_grad *= (1/m);
+Theta2_grad = Theta2_grad * (1/m);
+Theta1_grad = Theta1_grad * (1/m);
 
 Theta2_grad_reg = (lambda/m)*Theta2;
 Theta2_grad_reg(:,1) = 0;
-Theta2_grad += Theta2_grad_reg;
+Theta2_grad =  Theta2_grad +Theta2_grad_reg;
 
 Theta1_grad_reg = (lambda/m)*Theta1;
 Theta1_grad_reg(:,1) = 0;
-Theta1_grad += Theta1_grad_reg;
+Theta1_grad =  Theta1_grad + Theta1_grad_reg;
 
 grad = [Theta1_grad(:);Theta2_grad(:)];
 % Part 2: Implement the backpropagation algorithm to compute the gradients

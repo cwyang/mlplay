@@ -1,0 +1,321 @@
+% You should title the file with a .tex extension (hw1.tex, for example)
+\documentclass[11pt]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{enumerate}
+\DeclareGraphicsExtensions{.pdf,.png,.jpg}
+
+\oddsidemargin0cm
+\topmargin-2cm     %I recommend adding these three lines to increase the 
+\textwidth16.5cm   %amount of usable space on the page (and save trees)
+\textheight23.5cm  
+
+\newcommand{\question}[2] {\vspace{.25in} \hrule\vspace{0.5em}
+\noindent{\bf #1: #2} \vspace{0.5em}
+\hrule \vspace{.10in}}
+\renewcommand{\part}[1] {\vspace{.10in} {\bf (#1)}}
+
+\newcommand{\myname}{Chul-Woong Yang}
+\newcommand{\mymail}{cwyang@github.com}
+\newcommand{\myhwnum}{\#1}
+\newcommand{\mydate}{10 February 2017}
+\def\realnumbers{\mathbb{R}}
+
+\pagestyle{fancyplain}
+\lhead{\fancyplain{}{\textbf{PS\myhwnum}}}      % Note the different brackets!
+\rhead{\fancyplain{}{\myname\\ \mymail}}
+\chead{\fancyplain{}{Stanford cs229}}
+\renewcommand{\labelenumi}{\alph{enumi})}
+\newcommand{\rvect}[1]{\begin{bmatrix} #1 \end{bmatrix}}
+
+
+
+\begin{document}
+
+\medskip                        % Skip a "medium" amount of space
+                                % (latex determines what medium is)
+                                % Also try: \bigskip, \littleskip
+
+\thispagestyle{plain}
+\begin{center}                  % Center the following lines
+{\Large CS229 Self-study \myhwnum} \\
+\myname \\
+\mymail \\
+\mydate
+\end{center}
+\question{1}{Logistic Regression}
+\begin{enumerate}
+\item The average empirical loss for logistic regression:
+  \begin{eqnarray*}
+    J(\theta)=\frac{1}{m}\sum\limits_{i=1}^mlog(1+e^{-y^{(i)}\theta^Tx^{(i)}})
+    =-\frac{1}{m}\sum\limits_{i=1}^mlog(h_\theta(y^{(i)}x^{(i)}))
+  \end{eqnarray*}
+  where $h_\theta(x)=g(\theta^Tx)$ and $g(z)=1/(1+e^-z)$.
+
+  {\bf Answer:} Note that $g'(z)=g(z)(1-g(z)).$
+  Then by chain rule,  $\frac{\partial h(x)}{\partial \theta_k} = h(x)(1-h(x))x_k$.
+  When $z=x^{(i)}y^{(i)}$ and $z_k = x_k^{(i)}y^{(i)}$,
+  \begin{eqnarray*}
+    \frac{\partial}{\partial \theta_k} J(\theta)
+    =-\frac{1}{m}\sum\limits_{i=1}^m\frac{h_\theta(z)(1-h_\theta(z))z_k}{h_\theta(z)}
+    &=&-\frac{1}{m}\sum\limits_{i=1}^m(1-h_\theta(z))z_k\\
+    &=&-\frac{1}{m}\sum\limits_{i=1}^m(h_\theta(-y^{(i)}x^{(i)}))y^{(i)}x_k^{(i)}
+  \end{eqnarray*}
+  Hessian $H$ is:
+  \def\zz{y^{(i)}x^{(i)}}
+  \begin{eqnarray*}
+    H_kl
+    &=& \frac{\partial^2}{\partial\theta_k\partial\theta_l} J(\theta)\\
+    &=&-\frac{1}{m}\sum\limits_{i=1}^m \frac{\partial}{\partial\theta_l} (h_\theta(-y^{(i)}x^{(i)}))y^{(i)}x_k^{(i)}\\
+    &=&\frac{1}{m}\sum\limits_{i=1}^m h_\theta(-\zz)(1-h_\theta(-\zz)) y^{(i)} y^{(i)} x_k^{(i)} x_l^{(i)} \\
+    &=&\frac{1}{m}\sum\limits_{i=1}^m h_\theta(-\zz)(h_\theta(\zz)) x_k^{(i)} x_l^{(i)} \\
+    &=&\frac{1}{m}\sum\limits_{i=1}^m h_\theta(x^{(i)})(h_\theta(-x^{(i)})) x_k^{(i)} x_l^{(i)} \\
+    H &=&\frac{1}{m}\sum\limits_{i=1}^m h_\theta(x^{(i)})(h_\theta(-x^{(i)})) x^{(i)}x^{(i)T}
+  \end{eqnarray*}
+  We used $y^{(i)} \in \{1,-1\}$ and $y^{(i)}y^{(i)} = 1$ for third and fourth equalities.
+
+  For any vector $z$:
+  \begin{eqnarray*}
+    z^THz
+    &=&\frac{1}{m}z^T \bigg(\sum\limits_{i=1}^m h_\theta(x^{(i)})(h_\theta(-x^{(i)})) x^{(i)}x^{(i)T} \bigg)z \\
+    &=&\frac{1}{m}z^T \sum\limits_{i=1}^m h_\theta(x^{(i)})(h_\theta(-x^{(i)})) (z^T x^{(i)})(x^{(i)T} z) \\
+    &=&\frac{1}{m}z^T \sum\limits_{i=1}^m h_\theta(x^{(i)})(h_\theta(-x^{(i)})) (x^{(i)T} z)^2 \geq 0
+  \end{eqnarray*}
+
+\item Newton's method for optimizing $J(\theta)$\\
+  Separate source files 
+\item Newton's method plot $J(\theta)$\\
+  Please see Figure~\ref{fig1}.
+\begin{figure}[htbp]
+  \begin{center}
+    \includegraphics[scale=0.8]{ps1/p1.png}
+    \caption{Separating line for logistic regression}\label{fig1}
+  \end{center}
+\end{figure}
+\end{enumerate}
+
+\question{2}{Poisson regression an the exponential family}
+\begin{enumerate}
+\item Is the Poisson distribution in the exponential family?
+  \begin{eqnarray*}
+    p(y;\lambda)
+    &=&\frac{e^{-\lambda}\lambda^y}{y!}\\
+    &=&\frac{1}{y!} \exp(\log(\lambda^y e^{-\lambda}))\\
+    &=&\frac{1}{y!} \exp\bigg((\log\lambda)y-\lambda\bigg)
+  \end{eqnarray*}
+  Yes. it's Poisson distribution with:
+  \begin{eqnarray*}
+    b(y) &=& \frac{1}{y!}\\
+    \eta &=& \log\lambda\\
+    T(y) &=& y\\
+    a(\eta) &=& e^\eta
+  \end{eqnarray*}
+
+\item What is the canonical response function for the family?\\
+  The canonical response function:
+  \begin{eqnarray*}
+    g(\eta) = e^\eta
+  \end{eqnarray*}
+  since $e^\eta = e^{\log\lambda} = \lambda = \mu.$
+
+\item derive the stochastic gradient ascent rule\\
+  \def\myderi{\frac{\partial}{\partial\theta_j}}
+  \begin{eqnarray*}
+    \myderi \ell(\theta)
+    &=& \myderi \log p(y^{(i)}|x^{(i)};\theta)\\
+    &=& \myderi \log \big(\frac{1}{y!} \exp(\eta^Ty^{(i)}-e^\eta) \big)\\
+    &=& \myderi \log\frac{1}{y!} + \myderi \big((\theta^Tx^{(i)})^Ty^{(i)}-e^{\theta^Tx^{(i)}} \big)\\
+    &=& \myderi \big((\theta^Tx^{(i)})^Ty^{(i)}-e^{\theta^Tx^{(i)}} \big)\\    
+    &=& x_j^{(i)}y^{(i)} - x_j^{(i)}e^{\theta^Tx^{(i)}}\\
+    &=& x_j^{(i)} \big(y^{(i)} - e^{\theta^Tx^{(i)}}\big)
+  \end{eqnarray*}
+  the ascent rule is:
+  \begin{eqnarray*}
+    \theta_j &:=& \theta_j + \alpha \myderi\ell(\theta)\\
+    &:=& \theta_j + \alpha x_j^{(i)} \big(y^{(i)} - e^{\theta^Tx^{(i)}}\big)
+  \end{eqnarray*}
+
+\item Show that stochastic gradient ascent on the log-likelihood $\log p(\vec{y}|X;\theta)$ results in the update rule $\theta_i := \theta_i - \alpha(h(x) - y)x_i$.
+\end{enumerate}
+
+\question{3}{Gaussian discrimnant analysis}
+\begin{enumerate}
+\item The posterior distribution\\
+  Let $\mathcal{H} = \phi,\Sigma,\mu_{-1},\mu$.
+  \begin{eqnarray*}
+    p(y=1|x;\mathcal{H})
+    &=& \frac{p(x|y=1;\mathcal{H})p(y=1;\mathcal{H})}{p(x|y=-1;\mathcal{H})p(y=-1;\mathcal{H})+p(x|y=1;\mathcal{H})p(y=1;\mathcal{H})}\\
+    &=& \frac{p(x|y=1;\mathcal{H}) \phi} {p(x|y=-1;\mathcal{H})(1-\phi)+p(x|y=1;\mathcal{H})\phi}\\
+    &=& \frac{1} {\frac{p(x|y=-1;\mathcal{H})}{p(x|y=1;\mathcal{H}) }\frac{(1-\phi)}{\phi} + 1}\\
+    &=& \frac{1} {1 + \frac{(1-\phi)}{\phi} \exp\big( -\frac{1}{2}(x-\mu_{-1})^T\Sigma^{-1}(x-\mu_{-1}) + \frac{1}{2}(x-\mu_{1})^T\Sigma^{-1}(x-\mu_{1})  \big)}\\
+    &=& \frac{1} {1 +  \exp\big(\log\frac{(1-\phi)}{\phi} -\frac{1}{2}\underbrace{(x-\mu_{-1})^T\Sigma^{-1}(x-\mu_{-1})}_\text{A} + \frac{1}{2}\underbrace{(x-\mu_{1})^T\Sigma^{-1}(x-\mu_{1}}_\text{B})  \big)}\\
+    &=& \frac{1} {1 +  \exp\big(\log\frac{(1-\phi)}{\phi} +(\mu_{-1}^T-\mu_{1}^T )\Sigma^{-1}x + \frac{1}{2}(\mu_{1}^T\Sigma^{-1}\mu_{1} -\mu_{-1}^T\Sigma^{-1}\mu_{-1})  \big)}\\
+    A
+    &=& (x^T-\mu_{-1}^T)\Sigma^{-1}(x-\mu_{-1})\\
+    &=& x^T\Sigma^{-1}x -\mu_{-1}^T\Sigma^{-1}x - x^T\Sigma^{-1}\mu_{-1} + \mu_{-1}^T\Sigma^{-1}\mu_{-1}\\
+    B
+    &=& x^T\Sigma^{-1}x -\mu_{1}^T\Sigma^{-1}x - x^T\Sigma^{-1}\mu_{1} + \mu_{1}^T\Sigma^{-1}\mu_{1}\\
+    B-A
+    &=& (\mu_{-1}^T\Sigma^{-1}x - x^T\Sigma^{-1}\mu_{-1}) - (\mu_{1}^T\Sigma^{-1}x - x^T\Sigma^{-1}\mu_{1}) + (\mu_{1}^T\Sigma^{-1}\mu_{1} -\mu_{-1}^T\Sigma^{-1}\mu_{-1})\\
+    &=& 2\mu_{-1}^T\Sigma^{-1}x - 2\mu_{1}^T\Sigma^{-1}x + (\mu_{1}^T\Sigma^{-1}\mu_{1} -\mu_{-1}^T\Sigma^{-1}\mu_{-1})\\
+    &=& 2(\mu_{-1}^T-\mu_{1}^T )\Sigma^{-1}x + (\mu_{1}^T\Sigma^{-1}\mu_{1} -\mu_{-1}^T\Sigma^{-1}\mu_{-1})    
+  \end{eqnarray*}
+  We used $A=A^T$ for scalar $A$, $\Sigma^{-1}=\Sigma^{-T}$ for covariance Matrix $\Sigma$, and $(ABC)^T=(C^TB^TA^T)$.
+  We can do it for $y=-1$ similarly.
+  Then we proved the problem by setting $\theta_0 = -(\log\frac{(1-\phi)}{\phi} + \frac{1}{2}(\mu_{1}^T\Sigma^{-1}\mu_{1} -\mu_{-1}^T\Sigma^{-1}\mu_{-1}))$, and
+  $\theta = -\Sigma^{-1}(\mu_{-1}-\mu_{1})$.
+\newpage
+\item MLEs of the parameters for Gaussian model. $x^{(i)} \in \realnumbers$ and $y \in \{-1,1\}$.\\
+  \def\yy{y^{(i)}}
+  \def\xx{x^{(i)}}
+  \def\ssum{\sum_{i=1}^{m}}
+  \def\pred{1\{\yy=1\}}
+  \begin{align*}
+  \ell
+  &= \sum_{i=1}^{m}\log(p(x^{(i)}|y^{(i)};\mu_{-1},\mu_{1},\Sigma) + \sum_{i=1}^{m}\log(p(y^{(i)};\phi)) \\
+  \frac{\partial}{\partial\phi}\ell
+  &= \frac{\partial}{\partial\phi} \sum_{i=1}^{m} \big( \frac{\yy+1}{2}\log\phi - \frac{\yy-1}{2}\log(1-\phi) \big)\\
+  &= \frac{1}{2} \frac{\partial}{\partial\phi} \sum_{i=1}^{m} \big( (\yy+1)\log\phi - (\yy-1)\log(1-\phi) \big)  \\
+  &= \frac{1}{2} \sum_{i=1}^{m} \big( \frac{\yy+1}{\phi} + \frac{\yy-1}{1-\phi} \big)  \\
+  &= \frac{\ssum\pred}{\phi} - \frac{(m-\ssum\pred)}{1-\phi}  \\  
+  \end{align*}
+  since $y \in \{1,-1\}$, we use $(\yy+1)/2$ and $(\yy-1)/2$ to combine $p(\yy;\phi)$.
+  When we solve for $   \frac{\partial}{\partial\phi}\ell = 0 $, 
+  \begin{align*}
+    \phi &= \frac{1}{m}\ssum\pred
+  \end{align*}
+  \def\pp{\frac{1}{(2\pi)^{n/2}|\Sigma|^{1/2}}}
+  \begin{align*}
+    \frac{\partial}{\partial\mu_1}\ell
+    &= \frac{\partial}{\partial\mu_1} \sum_{i=1}^{m} \big( \frac{\yy+1}{2}\log\pp\exp(\alpha) - \frac{\yy-1}{2}\log\pp\exp(\beta) \big)\\
+    &= \frac{\partial}{\partial\mu_1} \sum_{i=1}^{m} \big( \frac{\yy+1}{2}(\alpha-C_1) - \frac{\yy-1}{2}(\beta-C_1) \big)\\
+    &= \frac{\partial}{\partial\mu_1} \sum_{i=1}^{m} \big( \frac{\yy+1}{2}(\alpha) \big)\\
+    &= \frac{\partial}{\partial\mu_1} \sum_{i=1}^{m} \big( \frac{\yy+1}{2}(-\frac{(x^{(i)}-\mu_1)^2}{2\sigma^2}) \big)\\
+    &= \sum_{i=1}^{m} \big( \frac{\yy+1}{2}(\frac{(x^{(i)}-\mu_1)}{\sigma^2}) \big)\\
+    &= \sum_{i=1}^{m} \big( \pred(\frac{(x^{(i)}-\mu_1)}{\sigma^2}) \big)\\
+  \end{align*}
+  When we solve for $   \frac{\partial}{\partial\mu_1}\ell = 0 $, 
+  \begin{align*}
+    \mu_1 &= \frac{\ssum\pred x^{(i)}}{\ssum\pred}
+  \end{align*}
+  $\mu_{-1}$ can be calulated similarly.
+  \begin{align*}
+    \frac{\partial}{\partial\Sigma}\ell
+    &= \frac{\partial}{\partial\Sigma} \sum_{i=1}^{m} \big( \pred\log\pp\exp(..) + (1-\pred)\log\pp\exp(..) \big)\\
+    &= \frac{\partial}{\partial\Sigma} \sum_{i=1}^{m} \big( \pred(-\frac{(\xx-\mu_1)^2}{2\Sigma}-\frac{1}{2}\log\Sigma) + (1-\pred)(-\frac{(\xx-\mu_{-1})^2}{2\Sigma}-\frac{1}{2}\log\Sigma) \big)\\
+    &= \sum_{i=1}^{m} \big( \pred(\frac{(\xx-\mu_1)^2}{2\Sigma^2}-\frac{1}{2\Sigma}) + (1-\pred)(\frac{(\xx-\mu_{-1})^2}{2\Sigma^2}-\frac{1}{2\Sigma}) \big)\\
+    &= \frac{\ssum(x-\mu_{\yy})^2}{2\Sigma^2} - \frac{m}{2\Sigma}
+  \end{align*}
+  When we solve for $   \frac{\partial}{\partial\Sigma}\ell = 0 $, 
+  \begin{align*}
+    \Sigma &= \frac{\ssum(x-\mu_{\yy})^2}{m}
+  \end{align*}
+\end{enumerate}  
+
+\question{5}{Regression for denoising quasar spectra}
+\begin{enumerate}
+\item Locally weighted linear regression\\
+  \def\yy{y^{(i)}}
+  \def\xx{x^{(i)}}
+  \begin{align*}
+    J(\theta)=\frac{1}{2}\sum_{i=1}^{m}w^{(i)}(\theta^T\xx-\yy)^2
+  \end{align*}
+  \begin{enumerate}[i.]
+  \item when $X$, $\vec{y}$ and $W$ are as follows:\\
+    \begin{align*}
+      X = \begin{bmatrix}
+        (x^{(1)})^T\\
+        (x^{(2)})^T\\
+        \vdots\\
+        (x^{(m)})^T\\
+      \end{bmatrix},
+      \vec{y} = \begin{bmatrix}
+        y^{(1)}\\
+        y^{(2)}\\
+        \vdots\\
+        y^{(m)}\\
+      \end{bmatrix},
+      W = \alpha \begin{bmatrix}
+        w^{(1)} & 0 & \dots \\
+        0 & w^{(1)} & \dots\\
+        \vdots & \vdots & \ddots\\
+        0 & \dots & w^{(m)}\\
+      \end{bmatrix},
+    \end{align*}
+  \begin{align*}
+    J(\theta)
+    &= (X\theta-\vec{y})^TW(X\theta-\vec{y})\\
+    &= \begin{bmatrix}
+      \theta^Tx^{(1)}-y^{(1)}\\
+      \vdots\\
+      \theta^Tx^{(m)}-y^{(m)}\\
+    \end{bmatrix}^TW(X\theta-\vec{y})\\
+    &= \begin{bmatrix}
+      \alpha(\theta^Tx^{(1)}-y^{(1)})w^{(1)}\\
+      \vdots\\
+      \alpha(\theta^Tx^{(m)}-y^{(m)})w^{(m)}\\
+    \end{bmatrix}^T(X\theta-\vec{y})\\
+    &=\alpha\sum_{i=1}^{m}w^{(i)}(\theta^T\xx-\yy)^2\\
+  \end{align*}
+  $W$ is given diagonal matrix with $\alpha=1/2$.
+\item normal equation
+  \begin{align*}
+    \nabla_\theta J(\theta)
+    &= \nabla_\theta \big( \theta^TX^TWX\theta-2\vec{y}^TWX\theta+\vec{y}^TW\vec{y} \big) \\
+    &= \nabla_\theta (tr  \theta^TX^TWX\theta)-2\vec{y}^TWX\\
+    &= (2X^TWX\theta)-2X^TW\vec{y}
+  \end{align*}
+  When $\nabla_\theta J(\theta) = 0$, 
+  \begin{align*}
+    \theta = (X^TWX)^{-1}X^TW\vec{y}
+  \end{align*}
+  \end{enumerate}
+\item Visualizing the data\\
+  \begin{enumerate}[i.]
+  \item optimal $\theta = \rvect{2.51 &-0.000981}^T$ and unweighted regression graph is in Figure~\ref{fig2}
+  \item locally weighted regression graph is in Figure~\ref{fig3}
+  \item locally weighted regression graph with multiple $\tau$ is in Figure~\ref{fig4}.
+    When $\tau$ has smaller value, regression give more weight to samples near $x^{(i)}$ and
+    graph has more fluctuation. 
+    When $\tau$ has larger value, regression give enough weights to samples far from $x^{(i)}$ and
+    effectively aggregated samples over ranges. So the graph has low fluctuation, 
+    regression results 
+  \end{enumerate}
+\begin{figure}[!htbp]
+  \begin{center}
+    \includegraphics[scale=0.6]{ps1/ps51.png}
+    \caption{linear regression with normal equation}\label{fig2}
+  \end{center}
+\end{figure}
+\begin{figure}[!htbp]
+  \begin{center}
+    \includegraphics[scale=0.6]{ps1/ps52.png}
+    \caption{locally weighted linear regression with normal equation}\label{fig3}
+  \end{center}
+\end{figure}
+\begin{figure}[!htbp]
+  \begin{center}
+    \includegraphics[scale=0.6]{ps1/ps53.png}
+    \caption{multiple $\tau$}\label{fig4}
+  \end{center}
+\end{figure}
+
+\item Predicting quasar spectra with functional regression\\
+  \begin{enumerate}[i.]
+  \item optimal $\theta = \rvect{2.51 &-0.000981}^T$ and unweighted regression graph is in Figure~\ref{fig2}
+  \item regression error of training set = 1.066396
+  \item regression error of test set = 2.709970. THe plot of entire smooth spectrum and fitted curve is in Figure~\ref{fig4}
+  \end{enumerate}
+\end{enumerate}
+\begin{figure}[!htbp]
+  \begin{center}
+    \includegraphics[scale=0.6]{ps1/ps54.png}
+    \caption{quasar regression on testset \#1, \#6}\label{fig5}
+  \end{center}
+\end{figure}
+
+\end{document}
+

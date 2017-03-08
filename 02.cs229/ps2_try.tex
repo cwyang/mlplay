@@ -1,0 +1,164 @@
+% You should title the file with a .tex extension (hw1.tex, for example)
+\documentclass[11pt]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{enumerate}
+\DeclareGraphicsExtensions{.pdf,.png,.jpg}
+
+\oddsidemargin0cm
+\topmargin-2cm     %I recommend adding these three lines to increase the 
+\textwidth16.5cm   %amount of usable space on the page (and save trees)
+\textheight23.5cm  
+
+\newcommand{\question}[2] {\vspace{.25in} \hrule\vspace{0.5em}
+\noindent{\bf #1: #2} \vspace{0.5em}
+\hrule \vspace{.10in}}
+\renewcommand{\part}[1] {\vspace{.10in} {\bf (#1)}}
+
+\newcommand{\myname}{Chul-Woong Yang}
+\newcommand{\mymail}{cwyang@github.com}
+\newcommand{\myhwnum}{\#2}
+\newcommand{\mydate}{19 February 2017}
+\def\realnumbers{\mathbb{R}}
+
+\pagestyle{fancyplain}
+\lhead{\fancyplain{}{\textbf{PS\myhwnum}}}      % Note the different brackets!
+\rhead{\fancyplain{}{\myname\\ \mymail}}
+\chead{\fancyplain{}{Stanford cs229}}
+\renewcommand{\labelenumi}{\alph{enumi})}
+\newcommand{\rvect}[1]{\begin{bmatrix} #1 \end{bmatrix}}
+\newcommand{\vect}[1]{\boldsymbol{#1}}
+
+\begin{document}
+
+\medskip                        % Skip a "medium" amount of space
+                                % (latex determines what medium is)
+                                % Also try: \bigskip, \littleskip
+
+\thispagestyle{plain}
+\begin{center}                  % Center the following lines
+{\Large CS229 Self-study \myhwnum} \\
+\myname \\
+\mymail \\
+\mydate
+\end{center}
+\question{1}{Constructing kernels}
+Let $K_1, K_2$ be kernesl over $\realnumbers^n \times \realnumbers^n$,
+let $a \in \realnumbers^+$ be a positive real number, let $f : \realnumbers^n \mapsto \realnumbers$
+be a real-valued function, let $\phi: \realnumbers^n \rightarrow \realnumbers^d$ be a function
+mapping from $\realnumbers^n$ to $\realnumbers^d$, let $K_3$ be a kernel over
+$\realnumbers^d \times \realnumbers^d$, and let $p(x)$ a polynomial over $x$ with positive
+coefficients.
+
+All $K$ are symmetric since $K_1, K_2$ and $K_3$ are symmetric and
+$f$ is commutative. Then, we check for positive semidefinitiveness.
+We use $K$ to denote kernel function and kernel matrix, without ambuigity.
+\begin{enumerate}
+\item $K(x,z) = K_1(x,z)+K_2(x,z)$
+  \\Yes. For any $x, x^TKx = x^TK_1x + x^TK_2x \geq 0.$
+\item $K(x,z) = K_1(x,z)-K_2(x,z)$
+  \\No. When $K_1 = 2K_2, x^TKx = x^TK_1x - 2x^TK_1x = -x^TK_1x \leq 0.$
+\item $K(x,z) = aK_1(x,z)$
+  \\Yes. $\forall x, x^TKx = ax^TKx \geq 0.$
+\item $K(x,z) = -aK_1(x,z)$
+  \\No. $\forall x, x^TKx = -ax^TKx \leq 0.$
+\item $K(x,z) = K_1(x,z)K_2(x,z)$
+  \\Yes. See solution for proof.
+\item $K(x,z) = f(x)f(z)$
+  \\Yes. $K(x,z)=f(x)f(z) = f(x)^Tf(z)$. $f$ can be interpreted as a feature mapping.
+\item $K(x,z) = K_3(\phi(x),\phi(z))$
+  \\Yes. $K(x,z)=\phi_3(\phi(x)))^T\phi_3(\phi(z))=(\phi_3 \circ \phi)(x)^T(\phi_3 \circ \phi)(x)$
+\item $K(x,z) = p(K_1(x,z))$
+  \\Yes. By (a) addition, (e) multiplication, (f) constant, we see that any polynomial of kernel
+  is also a kernel.
+\end{enumerate}
+\question{2}{Kernelizing the Perceptron}
+Original update rule can be written as
+\begin{align*}
+  \theta := \theta + \alpha (y^{(i)} - h_\theta(x^{(i)}))x^{(i)}.
+\end{align*}
+With kernel, new $\theta$ can be given by
+\begin{align*}
+  \theta := \theta + \alpha (y^{(i)} - h_\theta(\phi(x^{(i)})))\phi(x^{(i)}),
+\end{align*}
+and $\theta^{(0)} = \vec{0}$ also. Then $\theta^{(i)}$ is a linear combination of $\phi(x^{(i)}$.
+\begin{align*}
+  \theta^{(i)} = \sum_{l=1}^i \beta_l \phi(x^{(l)})
+\end{align*}
+
+We can calculate $g$ without $\phi$:\
+\begin{align*}
+  g({\theta^{(i)}}^T \phi(x^{(i+1)})
+  &= g(\sum_{l=1}^i \beta_l \phi(x^{(l)})^T \phi(x^{(i+1)})\\
+  &= g(\sum_{l=1}^i \beta_l K(x^{(l)},x^{(i+1)}))
+\end{align*}
+\question{3}{Spam classification}
+\begin{enumerate}[(a)]
+\item a naive Bayes implementation, using the multinomial event model\\
+Although everyone says that naive Bayes classification is the simplest approach, it was a tough experience for me:
+\begin{verbatim}
+octave:128> nb_train
+Train error: 0.0117
+1: httpaddr
+2: spam
+3: unsubscrib
+4: ebai
+5: valet
+Test error: 0.0163
+\end{verbatim}
+
+\item most indicative of the SPAM class\\
+  see the result of (a).
+
+\item plotting a learning curve, by varying training set size\\  
+\begin{verbatim}
+  octave:184> learning_curve
+  Train_size=  50, Test error: 0.0387
+  Train_size= 100, Test error: 0.0262
+  Train_size= 200, Test error: 0.0262
+  Train_size= 400, Test error: 0.0187
+  Train_size= 800, Test error: 0.0175
+  Train_size=1400, Test error: 0.0163
+\end{verbatim}
+
+\item SVM\\
+  gave up.
+\begin{verbatim}
+Train_size=  50, Test error: 0.0177
+Train_size= 100, Test error: 0.0130
+Train_size= 200, Test error: 0.0055
+Train_size= 400, Test error: 0.0020
+Train_size= 800, Test error: 0.0000
+Train_size=1400, Test error: 0.0000
+\end{verbatim}
+
+\question{4}{Properties of VC dimesion}
+\begin{enumerate}[(a)]
+\item Yes. For any set of points with VC($H_1$), we can use $H_1$, a subset of $H_2$, to shatter the
+  set into VC($H_1$).
+\item Let $H_1 = H_2 \cup \{h_1, ..., h_k\}$. $\text{VC}(H_1) \leq \text{VC}(H_2) + k$.\\
+  Yes. \\
+  Let's think about $k=1$ case.
+  Suppose that $ VC(H_1) = d$, and let $S_1$ be a set of $d$ points that is shattered by $H_1$.
+  Now, pick an artbitrary $x \in S_1$.
+  Since $H_1$ shatters $S_1$, there must be some $h \in H_1$ such that $h$ and $h_1$ agree on
+  labelings for all points in $S_1$ except $x$.
+  It requires some thinking, but this means that $H' := H_1 \setminus \{h\}$ achieves all possible labelings
+  on $S' := S_1 \backslash {x}$. So $VC(H') \geq |S'| = d-1$.
+  Since $H' \subseteq H_2$, from part (a), $VC(H_1) \leq VC(H_2)$.
+  It follows that $VC(H_2) \geq d-1$, and equivalently, $VC(H_1) \leq VC(H_2)+1$, as desired.
+\item Let $H_1 = H_2 \cup H_3$. $\text{VC}(H_1) \leq \text{VC}(H_2) + \text{VC}(H_3)$.\\
+  False? \\
+  let $H_1 = \{h_1\}, H_2 = \{h_2\}, $and $\forall x, h_1(x)=0, h_2(x) = 1$.
+  Then we have $VC(H_1)=VC(H_2)=0$, but $VC(H_1\cup H_2) = 1$.
+\end{enumerate}
+\question{6}{Boosting and high energy physics}
+\begin{enumerate}[(a)]
+  \item hello
+\end{enumerate}
+\end{enumerate}
+\end{document}
+
